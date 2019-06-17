@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exam.mapper.AuthMapper">
+
+<select id="selectAuthListById" resultType="authVO">
+	SELECT * 
+	FROM d_diver.member_auth 
+	WHERE id = #{id}
+</select>
+
+<insert id="insertAuth">
+	INSERT INTO d_diver.member_auth
+	VALUES (#{id}, #{auth})
+</insert>
+
+<delete id="deleteAuthById">
+	DELETE FROM d_diver.member_auth
+	WHERE id = #{id}
+	<if test="auth != null">
+		AND auth = #{auth}
+	</if>
+</delete>
+
+</mapper>

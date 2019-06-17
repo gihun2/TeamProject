@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exam.mapper.MemberMapper">
+
+<insert id="insert">
+	INSERT INTO d_diver.member
+	(id, password, reg_date, cash, email, birthday, hint)
+	VALUES (#{id},#{password},CURRENT_TIMESTAMP, 0, #{email},#{birthday},#{hint})
+</insert>
+
+<select id="getMemberById" resultType="memberVO">
+	SELECT * FROM d_diver.member WHERE id = #{id}
+</select>
+
+<resultMap type="memberVO" id="collectionResultMap">
+	<id column="id" property="id" />
+	<result column="user_id" property="userId" />
+	<result column="password" property="password" />
+	<result column="reg_date" property="regDate" />
+	<result column="cash" property="cash" />
+	<result column="email" property="email" />
+	<result column="birthday" property="birthday" />
+	<result column="hint" property="hint" />
+	<collection property="authList" ofType="authVO">
+		<result column="id" property="id"/>
+		<result column="auth" property="auth"/>
+	</collection>
+</resultMap>
+
+<select id="getMemberAndAuthById" resultMap="collectionResultMap">
+	SELECT m.id, m.password, m.reg_date, m.cash, m.email, 
+	       m.birthday, m.hint, a.auth
+	FROM member m LEFT JOIN MEMBER_AUTH a
+	ON m.id = a.id
+	WHERE m.id = #{id};
+</select>
+
+<select id="countById" resultType="_int">
+	SELECT COUNT(*) FROM d_diver.member WHERE id = #{id}
+</select>
+
+<select id = "getHintById" resultType="string">
+	SELECT hint FROM member WHERE id = #{id}
+</select>
+
+<select id = "countByhint" resultType="_int">
+	SELECT COUNT(*) FROM d_diver.member WHERE hint = #{hint}
+</select> 
+
+<update id = "updatePassword" >
+	UPDATE member
+	SET password = #{password}
+	WHERE id = #{id}
+</update>
+
+<select id="checkPw" resultType="string">
+	select password from d_diver.member where id = #{id}
+</select>
+
+
+<update id = "upDateMember">
+	UPDATE d_diver.member 
+	SET password = #{password},
+	email = #{email},
+	birthday = #{birthday},
+	hint = #{hint}
+	WHERE id = #{id}
+</update>
+
+<delete id="deleteMember">
+	DELETE FROM d_diver.member WHERE id = #{id}
+</delete>
+
+<select id="getMemberList" resultType="memberVO">
+	SELECT * FROM d_diver.member;
+</select>
+
+
+
+<!-- 구매 관련 -->
+
+<select id="getCurrPackageById" resultType="string">
+	SELECT package FROM d_diver.package
+	WHERE id = #{id} AND expire_date > current_timestamp()
+</select>
+
+<select id="getExpireDateById" resultType="date">
+	SELECT expire_date FROM d_diver.package
+	WHERE id = #{id} AND expire_date > current_timestamp()
+</select>
+
+<update id="updateCash">
+	UPDATE d_diver.member SET cash = #{cash} WHERE id = #{id}
+</update>
+	
+<insert id="insertPackage">
+	INSERT INTO d_diver.package (id, package, expire_date)
+	VALUES (#{id}, #{pack}, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL #{month} MONTH))
+</insert>
+
+<delete id="deleteAllPackageById">
+	DELETE FROM d_diver.package
+	WHERE id = #{id}
+</delete>
+
+<!-- 구매 관련 -->
+
+<!-- 별점 -->
+<insert id="insertScore">
+	INSERT INTO d_diver.member_movie_score (movie_cd, id, score)
+	VALUES (#{movieCd}, #{id}, #{starInput})
+	ON DUPLICATE KEY UPDATE SCORE = values(score)
+	
+</insert>
+
+<update id="updateAvg">
+	update movie 
+	set avg_score = (
+		select avg(score) as avg_score 
+		from member_movie_score 
+		where movie_cd = #{movieCd}
+		group by MOVIE_CD) 
+	where movie_cd = #{movieCd}
+</update>
+<!-- 별점 -->
+
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
